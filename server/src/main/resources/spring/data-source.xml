@@ -39,7 +39,15 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate" depends-on="dataSourceAccessor">
+    <bean id="fixMysql4_0_3_migration"
+          init-method="checkMigration"
+          class="org.cloudfoundry.identity.uaa.db.FixLegacyMySQLOauthCodeColumn"
+          depends-on="dataSourceAccessor">
+        <constructor-arg index="0" ref="dataSource"/>
+        <constructor-arg index="1" value="#{@scripts}"/>
+    </bean>
+
+    <bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate" depends-on="fixMysql4_0_3_migration">
         <property name="baselineOnMigrate" value="true" />
         <property name="dataSource" ref="dataSource" />
         <property name="locations" value="classpath:org/cloudfoundry/identity/uaa/db/#{@scripts}/" />
